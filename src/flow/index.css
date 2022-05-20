@@ -1,0 +1,84 @@
+:root {
+    --borderColor: rgba(0,0,0,.06);
+    --backgroundColor: #ebebeb;
+}
+
+.flow-chart{
+    /* width: 986px; */
+    /* margin: 0 auto; */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    background-color:var(--backgroundColor);
+    overflow: auto;
+}
+.flow-node{
+    align-self: center;
+    text-align: center;
+}
+.condition{
+    display: flex;
+    flex-direction: column;
+
+}
+.branch-nodes{
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    border-top: 1px solid var(--borderColor);
+    border-bottom: 1px solid var(--borderColor);
+    /* overflow: auto; */
+}
+.branch-nodes .branch{
+    display: flex;
+    flex-direction: column;
+    flex:1;
+    position: relative;
+}
+.branch-nodes .branch:first-child::before{
+   content: "";
+   width: 50%;
+   height: 2px;
+   background-color:var(--backgroundColor);
+   position: absolute;
+   top: -1px;
+   left: 0;
+}
+.branch-nodes .branch:first-child::after{
+    content: "";
+    width: 50%;
+    height: 2px;
+    background-color:var(--backgroundColor);
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+}
+.branch-nodes .branch:last-child::before{
+    content: "";
+    width: 50%;
+    height: 2px;
+    background-color:var(--backgroundColor);
+    position: absolute;
+    top: -1px;
+    right: 0;
+ }
+ .branch-nodes .branch:last-child::after{
+    content: "";
+    width: 50%;
+    height: 2px;
+    background-color:var(--backgroundColor);
+    position: absolute;
+    bottom: -1px;
+    right: 0;
+ }
+
+.branch.flow-node{
+    align-self: stretch;
+}
+.branch .card{
+    /* margin-top: 50px;
+    z-index: 99; */
+}
+.card{
+    width: 300px;
+}
