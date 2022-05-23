@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button, Modal } from "antd";
 import Flow from "./flow";
 import initdata from "./flow/flowdata";
-import { addBranch, addCondition,addTaskAfter } from "./flow/util";
+import { addBranch,removeNode, addNodeAfter } from "./flow/util";
 
 function App() {
   const [data, setData] = useState(initdata);
@@ -16,7 +16,7 @@ function App() {
           onAddBranch: (node) => {
             // console.log("addBranch", node);
             setNode(node);
-            addBranch(node,data)
+            addBranch(node, data);
             // setVisible(true);
           },
           onAddNode: (node) => {
@@ -24,13 +24,14 @@ function App() {
             setNode(node);
             setVisible(true);
           },
-          onNodeClick: (node) => {
-            // console.log("onNodeClick", node);
+          onClickNode: (node) => {
+            // console.log("onClickNode", node);
             // setNode(node);
             // setVisible(true);
           },
           onRemoveNode: (node) => {
-            // console.log("onRemoveNode", node);
+            console.log("onRemoveNode", node);
+            removeNode(node,data)
             // setNode(node);
             // setVisible(true);
           },
@@ -40,9 +41,8 @@ function App() {
         <Button
           type="primary"
           onClick={() => {
-            const newdata = addTaskAfter(node, data);
+            const newdata = addNodeAfter("USERTASK", node, data);
             console.log(newdata);
-            
           }}
         >
           任务
@@ -50,9 +50,8 @@ function App() {
         <Button
           type="primary"
           onClick={() => {
-            const newdata = addCondition(node, data);
+            const newdata = addNodeAfter("CONDITION", node, data);
             console.log(newdata);
-
           }}
         >
           分支

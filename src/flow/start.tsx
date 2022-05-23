@@ -9,11 +9,11 @@ interface Props {
 }
 
 function Start({ data }: Props) {
-  const { onNodeClick } = useContext(FlowContext);
+  const { onClickNode } = useContext(FlowContext);
 
   return (
     <div className="start flow-node">
-      <Card className="card" onClick={() => onNodeClick(data)}>
+      <Card className="card" onClick={() => onClickNode(data)}>
         start
       </Card>
       <HLine data={data} />

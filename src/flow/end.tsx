@@ -7,10 +7,10 @@ interface Props {
 }
 
 function End({ data }: Props) {
-  const { onNodeClick } = useContext(FlowContext);
+  const { onClickNode } = useContext(FlowContext);
 
   return (
-    <div className="end flow-node" onClick={() => onNodeClick(data)}>
+    <div className="end flow-node" onClick={() => onClickNode(data)}>
       end
     </div>
   );

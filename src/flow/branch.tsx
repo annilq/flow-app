@@ -1,7 +1,7 @@
 // 每个branch都有个添加按钮
 import { useContext } from "react";
 
-import { Card } from "antd";
+import { Card,Button } from "antd";
 import HLine from "./HLine";
 import HLine2 from "./HLine2";
 import FlowContext from "./flowContext";
@@ -11,7 +11,7 @@ interface Props {
   children?: any;
 }
 function Branch({ data, children }: Props) {
-  const { onNodeClick } = useContext(FlowContext);
+  const { onClickNode, onRemoveNode } = useContext(FlowContext);
 
   return (
     <div className="branch flow-node">
@@ -19,9 +19,9 @@ function Branch({ data, children }: Props) {
       <div style={{ display: "flex", justifyContent: "center" }}>
         <Card
           title="branch title"
-          extra={"remove"}
+          extra={<Button danger onClick={() => onRemoveNode(data)}>remove</Button>}
           className="barach card"
-          onClick={() => onNodeClick(data)}
+          onClick={() => onClickNode(data)}
         >
           {data?.title}
         </Card>

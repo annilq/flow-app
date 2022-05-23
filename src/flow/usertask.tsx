@@ -1,6 +1,6 @@
 import { useContext } from "react";
 
-import { Card } from "antd";
+import { Card, Button } from "antd";
 import HLine from "./HLine";
 import FlowContext from "./flowContext";
 
@@ -9,7 +9,7 @@ interface Props {
 }
 
 function UserTask({ data }: Props) {
-  const { onNodeClick } = useContext(FlowContext);
+  const { onClickNode, onRemoveNode } = useContext(FlowContext);
 
   return (
     <div
@@ -18,9 +18,9 @@ function UserTask({ data }: Props) {
     >
       <Card
         title="task title"
-        extra={"remove"}
+        extra={<Button danger onClick={() => onRemoveNode(data)}>remove</Button>}
         className="card"
-        onClick={() => onNodeClick(data)}
+        onClick={() => onClickNode(data)}
       >
         task
       </Card>

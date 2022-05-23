@@ -9,6 +9,21 @@ export function getuid() {
   return arr[arr.length - 1];
 }
 
+function findParentNode(parentKeys: string[], nodes: Flow.node[]): Flow.node {
+  let tempNode: any = nodes;
+  let root = null;
+  function iterNodes() {
+    let parentKey = parentKeys.shift();
+    while (parentKey) {
+      root = tempNode?.find((item) => item.id === parentKey);
+      parentKey = parentKeys.shift();
+      tempNode = root.children;
+    }
+  }
+  iterNodes();
+  return root;
+}
+
 function getStartNode(): Flow.node {
   const newNode: Flow.node = {
     id: getuid(),
@@ -27,11 +42,15 @@ function getEndNode(): Flow.node {
   return newNode;
 }
 
-function getTaskNode(): Flow.node {
+function getTaskNode(parentNode: Flow.node): Flow.node {
+  const parentKeys = parentNode?.parentKeys || [];
+  if (parentNode?.id) {
+    parentKeys.push(parentNode?.id);
+  }
   const newNode: Flow.node = {
     id: getuid(),
     type: "USERTASK",
-    parentKeys: [],
+    parentKeys,
   };
   return newNode;
 }
@@ -61,46 +80,55 @@ function getBranchNode(parentNode: Flow.node): Flow.node {
   return newNode;
 }
 
-export function addCondition(node: Flow.node, nodes: Flow.node[]): Flow.node[] {
-  const newNode = getConditionNode(node);
-  if (isBranchRoot(node)) {
-    addBranchRoot(node, newNode);
-  } else {
-    newNode.parentKeys = [...node.parentKeys];
-    const parent = findSameLevelNodes(node, nodes);
-    insertNodeAfter(newNode, node, parent);
-  }
-  newNode.children.forEach(
-    (item) => (item.parentKeys = [...newNode.parentKeys, newNode.id])
-  );
-  return [...nodes];
+function isBranchRoot(node: Flow.node): boolean {
+  return node.type === "BRANCH";
 }
 
 function addBranchRoot(node: Flow.node, parent: Flow.node) {
   parent.children.unshift(node);
 }
+
+export function initFlowChart() {
+  return [getStartNode(), getStartNode()];
+}
+
+export function addNodeAfter(
+  nodeType: Flow.NodeType,
+  node: Flow.node,
+  nodes: Flow.node[]
+): Flow.node[] {
+  let newNode = null;
+
+  switch (nodeType) {
+    case "USERTASK":
+      newNode = getTaskNode(node);
+      break;
+    case "CONDITION":
+      newNode = getConditionNode(node);
+      break;
+    default:
+      break;
+  }
+  // 如果点击的是分支节点则直接追加到分支第一个
+  if (isBranchRoot(node)) {
+    addBranchRoot(newNode, node);
+  } else {
+    const parent = findParentNode(node.parentKeys, nodes);
+    // 存在父节点
+    if (parent) {
+      insertNodeAfter(newNode, node, parent.children);
+    } else {
+      insertNodeAfter(newNode, node, nodes);
+    }
+  }
+  return [...nodes];
+}
+
 export function addBranch(node: Flow.node, nodes: Flow.node[]): Flow.node[] {
   const newNode = getBranchNode(node);
   // 新增的节点插入到最后面
   node.children.push(newNode);
   return [...nodes];
-}
-
-export function addTaskAfter(node: Flow.node, nodes: Flow.node[]): Flow.node[] {
-  const newNode = getTaskNode();
-  // 如果点击的是分支节点则直接追加到分支第一个
-  if (isBranchRoot(node)) {
-    addBranchRoot(node, newNode);
-  } else {
-    newNode.parentKeys = [...node.parentKeys];
-    const parent = findSameLevelNodes(node, nodes);
-    insertNodeAfter(newNode, node, parent);
-  }
-  return [...nodes];
-}
-
-function isBranchRoot(node: Flow.node): boolean {
-  return node.type === "BRANCH";
 }
 
 function insertNodeAfter(
@@ -114,40 +142,25 @@ function insertNodeAfter(
   }
 }
 
-function removeNode(newNode: Flow.node, nodes: Flow.node[]): Flow.node[] {
+export function removeNode(node: Flow.node, nodes: Flow.node[]): Flow.node[] {
+  const parent = findParentNode(node.parentKeys, nodes);
+  if (parent) {
+    // 如果删掉的是分支，并且只有两个分支，则要将整个条件分支删除掉
+    if (parent.children?.length === 2 && node.type === "BRANCH") {
+      removeNode(parent, nodes);
+    } else {
+      const index = parent.children?.findIndex((item) => item.id === node.id);
+      parent.children?.splice(index, 1);
+    }
+  } else {
+    const index = nodes?.findIndex((item) => item.id === node.id);
+    nodes?.splice(index, 1);
+  }
+
   return nodes;
 }
 
 function updateNode(node: Flow.node, nodes: Flow.node[]): Flow.node[] {
   // if(node?.parentKeys)
   return nodes;
-}
-function findSameLevelNodes(node: Flow.node, nodes: Flow.node[]): Flow.node[] {
-  const parentKeys = [...node.parentKeys];
-  // {
-  //   id: "branch1",
-  //   type: "BRANCH",
-  //   title: "branch1",
-  //   children: [
-  //     {
-  //       id: "task1",
-  //       type: "USERTASK",
-  //       title: "task",
-  //       parentKeys: ["condition1", "branch1"],
-  //     },
-  //   ],
-  //   parentKeys: ["condition1"],
-  // },
-  let tempNode: any = nodes;
-
-  function iterNodes() {
-    let parentKey = parentKeys.shift();
-    while (parentKey) {
-      const root = tempNode?.find((node) => node.id === parentKey);
-      parentKey = parentKeys.shift();
-      tempNode = root.children;
-    }
-  }
-  iterNodes();
-  return tempNode;
 }

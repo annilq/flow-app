@@ -14,7 +14,7 @@ interface FlowProps {
   events?: {
     onAddBranch: (node: Flow.node) => void;
     onAddNode: (node: Flow.node) => void;
-    onNodeClick: (node: Flow.node) => void;
+    onClickNode: (node: Flow.node) => void;
     onRemoveNode: (node: Flow.node) => void;
   };
 }
