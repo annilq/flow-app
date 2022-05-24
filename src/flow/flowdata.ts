@@ -3,8 +3,8 @@ const data: Flow.node[] = [
     id: "start",
     type: "START",
     title: "start",
-    parentKeys:[]
-
+    parentKeys:[],
+    children:[]
   },
   {
     id: "condition1",
@@ -20,6 +20,7 @@ const data: Flow.node[] = [
             type: "USERTASK",
             title: "task",
             parentKeys: ["condition1", "branch1"],
+            children:[]
           },
         ],
         parentKeys: ["condition1"],
@@ -34,6 +35,7 @@ const data: Flow.node[] = [
             type: "USERTASK",
             title: "task",
             parentKeys: ["condition1", "branch2"],
+            children:[]
           },
         ],
         parentKeys: ["condition1"],
@@ -42,6 +44,7 @@ const data: Flow.node[] = [
         id: "branch3",
         type: "BRANCH",
         title: "branch3",
+        parentKeys: ["condition1"],
         children: [
           {
             id: "condition2",
@@ -53,11 +56,13 @@ const data: Flow.node[] = [
                 type: "BRANCH",
                 title: "task",
                 parentKeys: ["condition1", "branch3", "condition2"],
+                children:[]
               },
               {
                 id: "branch5",
                 type: "BRANCH",
                 title: "task",
+                parentKeys: ["condition1", "branch3", "condition2"],
                 children: [
                   {
                     id: "task3",
@@ -69,33 +74,32 @@ const data: Flow.node[] = [
                       "condition2",
                       "branch5",
                     ],
+                    children:[]
                   },
                 ],
-                parentKeys: ["condition1", "branch3", "condition2"],
               },
             ],
             parentKeys: ["condition1", "branch3"],
           },
         ],
-        parentKeys: ["condition1"],
       },
     ],
     title: "condition1",
-    parentKeys:[]
+    parentKeys:[],
   },
   {
     id: "task4",
     type: "USERTASK",
     title: "task",
-    parentKeys:[]
-
+    parentKeys:[],
+    children:[]
   },
   {
     id: "end",
     type: "END",
     title: "end",
-    parentKeys:[]
-
+    parentKeys:[],
+    children:[]
   },
 ];
 export default data;

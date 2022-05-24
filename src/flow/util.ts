@@ -9,21 +9,6 @@ export function getuid() {
   return arr[arr.length - 1];
 }
 
-function findParentNode(parentKeys: string[], nodes: Flow.node[]): Flow.node {
-  let tempNode: any = nodes;
-  let root = null;
-  function iterNodes() {
-    let parentKey = parentKeys.shift();
-    while (parentKey) {
-      root = tempNode?.find((item) => item.id === parentKey);
-      parentKey = parentKeys.shift();
-      tempNode = root.children;
-    }
-  }
-  iterNodes();
-  return root;
-}
-
 function getStartNode(): Flow.node {
   const newNode: Flow.node = {
     id: getuid(),
@@ -43,7 +28,7 @@ function getEndNode(): Flow.node {
 }
 
 function getTaskNode(parentNode: Flow.node): Flow.node {
-  const parentKeys = parentNode?.parentKeys || [];
+  const parentKeys = [...(parentNode?.parentKeys || [])];
   if (parentNode?.id) {
     parentKeys.push(parentNode?.id);
   }
@@ -56,7 +41,7 @@ function getTaskNode(parentNode: Flow.node): Flow.node {
 }
 
 function getConditionNode(parentNode: Flow.node): Flow.node {
-  const parentKeys = parentNode?.parentKeys || [];
+  const parentKeys = [...(parentNode?.parentKeys || [])];
   if (parentNode?.id) {
     parentKeys.push(parentNode?.id);
   }
@@ -70,7 +55,7 @@ function getConditionNode(parentNode: Flow.node): Flow.node {
 }
 
 function getBranchNode(parentNode: Flow.node): Flow.node {
-  const parentKeys = parentNode.parentKeys || [];
+  const parentKeys = [...(parentNode?.parentKeys || [])];
   const newNode: Flow.node = {
     id: getuid(),
     type: "BRANCH",
@@ -85,9 +70,26 @@ function isBranchRoot(node: Flow.node): boolean {
 }
 
 function addBranchRoot(node: Flow.node, parent: Flow.node) {
-  parent.children.unshift(node);
+  // parent.children.unshift(node);
+  parent.children = [node, ...parent.children];
 }
 
+function findParentNode(parentKeys: string[], nodes: Flow.node[]): Flow.node {
+  const tempkeys = [...(parentKeys || [])];
+
+  let tempNode: any = nodes;
+  let root = null;
+  function iterNodes() {
+    let parentKey = tempkeys.shift();
+    while (parentKey && tempNode) {
+      root = tempNode?.find((item) => item.id === parentKey);
+      parentKey = tempkeys.shift();
+      tempNode = root?.children;
+    }
+  }
+  iterNodes();
+  return root;
+}
 export function initFlowChart() {
   return [getStartNode(), getStartNode()];
 }
@@ -98,13 +100,17 @@ export function addNodeAfter(
   nodes: Flow.node[]
 ): Flow.node[] {
   let newNode = null;
+  let parent = findParentNode(node.parentKeys, nodes);
+  if (node.type === "BRANCH") {
+    parent = node;
+  }
 
   switch (nodeType) {
     case "USERTASK":
-      newNode = getTaskNode(node);
+      newNode = getTaskNode(parent);
       break;
     case "CONDITION":
-      newNode = getConditionNode(node);
+      newNode = getConditionNode(parent);
       break;
     default:
       break;
@@ -113,7 +119,6 @@ export function addNodeAfter(
   if (isBranchRoot(node)) {
     addBranchRoot(newNode, node);
   } else {
-    const parent = findParentNode(node.parentKeys, nodes);
     // 存在父节点
     if (parent) {
       insertNodeAfter(newNode, node, parent.children);
@@ -124,11 +129,20 @@ export function addNodeAfter(
   return [...nodes];
 }
 
-export function addBranch(node: Flow.node, nodes: Flow.node[]): Flow.node[] {
+export function addBranch(node: Flow.node, nodes) {
   const newNode = getBranchNode(node);
+  // const parent = findParentNode(node.parentKeys, nodes);
+
   // 新增的节点插入到最后面
-  node.children.push(newNode);
-  return [...nodes];
+  // node.children.push(newNode);
+  node.children = [...node.children, newNode];
+  // if (parent) {
+  //   const index = parent.children?.findIndex((item) => item.id === node.id);
+  //   parent.children?.splice(index, 1, node);
+  // } else {
+  //   const index = nodes.findIndex((item) => item.id === node.id);
+  //   nodes.splice(index, 1, node);
+  // }
 }
 
 function insertNodeAfter(
@@ -142,7 +156,7 @@ function insertNodeAfter(
   }
 }
 
-export function removeNode(node: Flow.node, nodes: Flow.node[]): Flow.node[] {
+export function removeNode(node: Flow.node, nodes: Flow.node[]) {
   const parent = findParentNode(node.parentKeys, nodes);
   if (parent) {
     // 如果删掉的是分支，并且只有两个分支，则要将整个条件分支删除掉
@@ -156,8 +170,6 @@ export function removeNode(node: Flow.node, nodes: Flow.node[]): Flow.node[] {
     const index = nodes?.findIndex((item) => item.id === node.id);
     nodes?.splice(index, 1);
   }
-
-  return nodes;
 }
 
 function updateNode(node: Flow.node, nodes: Flow.node[]): Flow.node[] {

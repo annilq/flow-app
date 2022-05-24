@@ -1,22 +1,33 @@
 import { useState, useEffect } from "react";
-import { observer, Observer } from "mobx-react-lite";
-import { observable, reaction, toJS, autorun } from "mobx";
+import { observer, Observer, useLocalObservable } from "mobx-react-lite";
+import { reaction, toJS } from "mobx";
 
 import { Button, Modal } from "antd";
 import Flow from "./flow";
 import initdata from "./flow/flowdata";
-import FlowStore from "./flow/flowStore";
+import { addBranch, removeNode, addNodeAfter } from "./flow/util";
 
 function App() {
   const [visible, setVisible] = useState(false);
   const [node, setNode] = useState<Flow.node>();
-  const [data] = useState(() => new FlowStore(initdata)); // See the Timer definition above.
-  const { addBranch, addNodeAfter, lists } = data;
+
+  const flowStore = useLocalObservable(() => ({
+    data: initdata,
+    addBranch(node) {
+      addBranch(node, this.data);
+    },
+    addNodeAfter(type, node) {
+      addNodeAfter(type, node, this.data);
+    },
+    removeNode(node) {
+      removeNode(node, this.data);
+    },
+  }));
 
   useEffect(
     () => {
       reaction(
-        () => toJS(data),
+        () => toJS(flowStore.data),
         (newVal) => {
           console.log(newVal);
         }
@@ -30,15 +41,14 @@ function App() {
       {() => (
         <div className="App">
           <Flow
-            nodes={data.lists}
+            nodes={toJS(flowStore.data)}
             events={{
               onAddBranch: (node) => {
                 // console.log("addBranch", node);
-                setNode(node);
-                addBranch(node, data.lists);
+                // setNode(node);
+                flowStore.addBranch(node);
                 // setVisible(true);
               },
-
               onAddNode: (node) => {
                 // console.log("addNode", node);
                 setNode(node);
@@ -50,7 +60,8 @@ function App() {
                 // setVisible(true);
               },
               onRemoveNode: (node) => {
-                // console.log("onRemoveNode", node);
+                console.log("onRemoveNode", node);
+                flowStore.removeNode(node);
                 // setNode(node);
                 // setVisible(true);
               },
@@ -60,7 +71,7 @@ function App() {
             <Button
               type="primary"
               onClick={() => {
-                const newdata = addNodeAfter("USERTASK", node, data.lists);
+                const newdata = flowStore.addNodeAfter("USERTASK", node);
                 console.log(newdata);
               }}
             >
@@ -69,7 +80,7 @@ function App() {
             <Button
               type="primary"
               onClick={() => {
-                const newdata = addNodeAfter("CONDITION", node, data.lists);
+                const newdata = flowStore.addNodeAfter("CONDITION", node);
                 console.log(newdata);
               }}
             >

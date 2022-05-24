@@ -1,10 +1,12 @@
 // 每个branch都有个添加按钮
 import { useContext } from "react";
 
-import { Card,Button } from "antd";
+import { Card, Button } from "antd";
 import HLine from "./HLine";
 import HLine2 from "./HLine2";
 import FlowContext from "./flowContext";
+import { observer } from "mobx-react-lite";
+import { toJS } from "mobx";
 
 interface Props {
   data: Flow.node;
@@ -18,8 +20,12 @@ function Branch({ data, children }: Props) {
       <HLine2 />
       <div style={{ display: "flex", justifyContent: "center" }}>
         <Card
-          title="branch title"
-          extra={<Button danger onClick={() => onRemoveNode(data)}>remove</Button>}
+          title={`branch ${data.id}`}
+          extra={
+            <Button danger onClick={() => onRemoveNode(data)}>
+              remove
+            </Button>
+          }
           className="barach card"
           onClick={() => onClickNode(data)}
         >
@@ -31,5 +37,7 @@ function Branch({ data, children }: Props) {
     </div>
   );
 }
-
-export default Branch;
+const MobxObserver = observer(({ data, children = false }:any) => (
+  <Branch data={toJS(data)}>{children}</Branch>
+));
+export default MobxObserver;

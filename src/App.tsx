@@ -16,7 +16,7 @@ function App() {
           onAddBranch: (node) => {
             // console.log("addBranch", node);
             setNode(node);
-            addBranch(node, data);
+            addBranch(node,data);
             // setVisible(true);
           },
           onAddNode: (node) => {

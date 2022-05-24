@@ -17,7 +17,7 @@ function UserTask({ data }: Props) {
       style={{ display: "flex", flexDirection: "column", position: "relative" }}
     >
       <Card
-        title="task title"
+        title={`task ${data.id}`}
         extra={<Button danger onClick={() => onRemoveNode(data)}>remove</Button>}
         className="card"
         onClick={() => onClickNode(data)}
