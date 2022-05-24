@@ -26,6 +26,6 @@ function Condition({ data, children }: Props) {
   );
 }
 const MobxObserver = observer(({ data, children = false }:any) => (
-  <Condition data={toJS(data)}>{children}</Condition>
+  <Condition data={data}>{children}</Condition>
 ));
 export default MobxObserver;

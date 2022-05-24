@@ -71,7 +71,8 @@ function isBranchRoot(node: Flow.node): boolean {
 
 function addBranchRoot(node: Flow.node, parent: Flow.node) {
   // parent.children.unshift(node);
-  parent.children = [node, ...parent.children];
+  // parent.children = [node, ...parent.children];
+  parent.children.splice(0, 0, node);
 }
 
 function findParentNode(parentKeys: string[], nodes: Flow.node[]): Flow.node {
@@ -131,18 +132,9 @@ export function addNodeAfter(
 
 export function addBranch(node: Flow.node, nodes) {
   const newNode = getBranchNode(node);
-  // const parent = findParentNode(node.parentKeys, nodes);
 
   // 新增的节点插入到最后面
-  // node.children.push(newNode);
-  node.children = [...node.children, newNode];
-  // if (parent) {
-  //   const index = parent.children?.findIndex((item) => item.id === node.id);
-  //   parent.children?.splice(index, 1, node);
-  // } else {
-  //   const index = nodes.findIndex((item) => item.id === node.id);
-  //   nodes.splice(index, 1, node);
-  // }
+  node.children.push(newNode);
 }
 
 function insertNodeAfter(

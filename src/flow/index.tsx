@@ -1,11 +1,7 @@
 import { useContext } from "react";
 
-import Start from "./start";
-import End from "./end";
-import Condition from "./condition";
-import UserTask from "./usertask";
-import Branch from "./branch";
 import FlowContext from "./flowContext";
+import FLowNodeRender from "./flowrender";
 
 import "./index.css";
 
@@ -19,44 +15,22 @@ interface FlowProps {
   };
 }
 
-function getFLowNode(node: Flow.node) {
-  let FlowNode = null;
-  switch (node.type) {
-    case "START":
-      FlowNode = <Start data={node} key={node.id} />;
-      break;
-    case "BRANCH":
-      FlowNode = (
-        <Branch key={node.id} data={node}>
-          {node.children?.map(getFLowNode)}
-        </Branch>
-      );
-      break;
-    case "CONDITION":
-      FlowNode = (
-        <Condition key={node.id} data={node}>
-          {node.children?.map(getFLowNode)}
-        </Condition>
-      );
-      break;
-    case "USERTASK":
-      FlowNode = <UserTask key={node.id} data={node} />;
-      break;
-    case "END":
-      FlowNode = <End key={node.id} data={node} />;
-      break;
-    default:
-      break;
-  }
-
-  return FlowNode;
-}
-
 function Flow(flowProps: FlowProps) {
   const defalutEventsHandle = useContext(FlowContext);
 
   const { nodes, events = defalutEventsHandle } = flowProps;
-  const flowNodes = nodes.map(getFLowNode);
+  const flowNodes = nodes.map((node) => (
+    <FLowNodeRender
+      node={{
+        id: node.id,
+        type: node.type,
+        title: node.title,
+        children: node.children,
+        parentKeys: node.parentKeys,
+      }}
+      key={`render-${node.id}`}
+    />
+  ));
   return (
     <FlowContext.Provider value={events}>
       <div className="flow-chart">
