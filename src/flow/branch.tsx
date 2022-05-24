@@ -5,8 +5,6 @@ import { Card, Button } from "antd";
 import HLine from "./HLine";
 import HLine2 from "./HLine2";
 import FlowContext from "./flowContext";
-import { observer } from "mobx-react-lite";
-import { toJS } from "mobx";
 
 interface Props {
   data: Flow.node;
@@ -37,7 +35,5 @@ function Branch({ data, children }: Props) {
     </div>
   );
 }
-const MobxObserver = observer(({ data, children = false }:any) => (
-  <Branch data={toJS(data)}>{children}</Branch>
-));
-export default MobxObserver;
+
+export default Branch;

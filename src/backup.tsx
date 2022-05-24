@@ -1,47 +1,17 @@
 import { useState, useEffect } from "react";
-import { observer, Observer, useLocalObservable } from "mobx-react-lite";
-import { autorun, makeAutoObservable, reaction, toJS } from "mobx";
+import { isObservableObject, reaction, toJS } from "mobx";
 
 import { Button, Modal } from "antd";
 import Flow from "./flow";
 import initdata from "./flow/flowdata";
-import { addBranch, removeNode, addNodeAfter } from "./flow/util";
+import FlowStore from "./flow/flowStore";
 
-// class flowNodesStore {
-//   data = [];
-//   addBranch(node) {
-//     addBranch(node, this.data);
-//   }
-//   addNodeAfter(type, node) {
-//     addNodeAfter(type, node, this.data);
-//   }
-//   removeNode(node) {
-//     removeNode(node, this.data);
-//   }
-//   constructor() {
-//     this.data = initdata;
-//     makeAutoObservable(this);
-//     autorun(() => console.log(this.data));
-//   }
-// }
-// const flowStore = new flowNodesStore();
+// const flowStore = new FlowStore(initdata);
 
 function App() {
   const [visible, setVisible] = useState(false);
   const [node, setNode] = useState<Flow.node>();
-
-  const flowStore = useLocalObservable(() => ({
-    data: initdata,
-    addBranch(node) {
-      addBranch(node, this.data);
-    },
-    addNodeAfter(type, node) {
-      addNodeAfter(type, node, this.data);
-    },
-    removeNode(node) {
-      removeNode(node, this.data);
-    },
-  }));
+  const [flowStore] = useState<any>(() => new FlowStore(initdata));
 
   useEffect(
     () => {
@@ -54,56 +24,54 @@ function App() {
     },
     [] // note empty dependencies
   );
+  // console.log(flowStore);
+  // console.log(isObservableObject(flowStore.data));
 
   return (
-    <Observer>
-      {() => (
-        <div className="App">
-          <Flow
-            nodes={toJS(flowStore.data)}
-            events={{
-              onAddBranch: (node) => {
-                flowStore.addBranch(node);
-              },
-              onAddNode: (node) => {
-                setNode(node);
-                setVisible(true);
-              },
-              onClickNode: (node) => {
-                // console.log("onClickNode", node);
-                // setNode(node);
-                // setVisible(true);
-              },
-              onRemoveNode: (node) => {
-                console.log("onRemoveNode", node);
-                flowStore.removeNode(node);
-              },
-            }}
-          />
-          <Modal visible={visible} onCancel={() => setVisible(false)}>
-            <Button
-              type="primary"
-              onClick={() => {
-                const newdata = flowStore.addNodeAfter("USERTASK", node);
-                console.log(newdata);
-              }}
-            >
-              任务
-            </Button>
-            <Button
-              type="primary"
-              onClick={() => {
-                const newdata = flowStore.addNodeAfter("CONDITION", node);
-                console.log(newdata);
-              }}
-            >
-              分支
-            </Button>
-          </Modal>
-        </div>
-      )}
-    </Observer>
+    <div className="App">
+      <Flow
+        // nodes={ flowStore.data}
+        flowStore={flowStore}
+        nodes={toJS(flowStore.data)}
+        events={{
+          onAddBranch: (node) => {
+            flowStore.addBranch(node);
+          },
+          onAddNode: (node) => {
+            setNode(node);
+            setVisible(true);
+          },
+          onClickNode: (node) => {
+            // console.log("onClickNode", node);
+            // setNode(node);
+            // setVisible(true);
+          },
+          onRemoveNode: (node) => {
+            console.log("onRemoveNode", node);
+            flowStore.removeNode(node);
+          },
+        }}
+      />
+      <Modal visible={visible} onCancel={() => setVisible(false)}>
+        <Button
+          type="primary"
+          onClick={() => {
+            flowStore.addNodeAfter("USERTASK", node);
+          }}
+        >
+          任务
+        </Button>
+        <Button
+          type="primary"
+          onClick={() => {
+            flowStore.addNodeAfter("CONDITION", node);
+          }}
+        >
+          分支
+        </Button>
+      </Modal>
+    </div>
   );
 }
 
-export default observer(App);
+export default App;

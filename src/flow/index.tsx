@@ -1,3 +1,5 @@
+import { isObservableObject } from "mobx";
+import { Observer, observer } from "mobx-react-lite";
 import { useContext } from "react";
 
 import FlowContext from "./flowContext";
@@ -19,6 +21,8 @@ function Flow(flowProps: FlowProps) {
   const defalutEventsHandle = useContext(FlowContext);
 
   const { nodes, events = defalutEventsHandle } = flowProps;
+  // console.log(isObservableObject(nodes));
+
   const flowNodes = nodes.map((node) => (
     <FLowNodeRender
       node={{
@@ -31,32 +35,15 @@ function Flow(flowProps: FlowProps) {
       key={`render-${node.id}`}
     />
   ));
+
   return (
     <FlowContext.Provider value={events}>
-      <div className="flow-chart">
-        {/* <Start data={flowLinkData[0]} />
-      <Condition data={[flowLinkData[1], flowLinkData[4]]} key={1}>
-        <Branch key={flowLinkData[1].id} data={flowLinkData[1]}>
-          <UserTask data={flowLinkData[2]} />
-        </Branch>
-        <Branch key={flowLinkData[7].id} data={flowLinkData[7]}>
-          <UserTask data={flowLinkData[2]} />
-        </Branch>
-        <Branch key={flowLinkData[4].id} data={flowLinkData[4]}>
-          <Condition data={[flowLinkData[5], flowLinkData[6]]} key={2}>
-            <Branch key={flowLinkData[5].id} data={flowLinkData[5]} />
-            <Branch key={flowLinkData[6].id} data={flowLinkData[6]}>
-              <UserTask data={flowLinkData[2]} />
-            </Branch>
-          </Condition>
-        </Branch>
-      </Condition>
-      <UserTask data={flowLinkData[2]} />
-      <End data={flowLinkData[3]} /> */}
-        {flowNodes}
-      </div>
+      <div className="flow-chart">{flowNodes}</div>
     </FlowContext.Provider>
   );
 }
+const FlowWrapper = observer(({ flowStore, events }: any) => (
+  <Flow nodes={flowStore.data} events={events}/>
+));
 
-export default Flow;
+export default FlowWrapper;

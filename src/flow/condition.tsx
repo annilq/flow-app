@@ -4,8 +4,6 @@ import { useContext } from "react";
 import { PlusCircleOutlined } from "@ant-design/icons";
 import HLine from "./HLine";
 import FlowContext from "./flowContext";
-import { observer } from "mobx-react-lite";
-import { toJS } from "mobx";
 
 interface Props {
   data: Flow.node;
@@ -25,7 +23,5 @@ function Condition({ data, children }: Props) {
     </div>
   );
 }
-const MobxObserver = observer(({ data, children = false }:any) => (
-  <Condition data={data}>{children}</Condition>
-));
-export default MobxObserver;
+
+export default Condition;

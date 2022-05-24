@@ -1,7 +1,7 @@
 /*
     start -> task?->condition?(children:[])-> task[]? -> end
 */
-
+import { observable } from "mobx";
 export function getuid() {
   const tempUrl = URL.createObjectURL(new Blob());
   const uuid = tempUrl.toString(); // blob:https://xxx.com/b250d159-e1b6-4a87-9002-885d90033be3
@@ -15,7 +15,7 @@ function getStartNode(): Flow.node {
     type: "START",
     parentKeys: [],
   };
-  return newNode;
+  return observable(newNode);
 }
 
 function getEndNode(): Flow.node {
@@ -24,7 +24,7 @@ function getEndNode(): Flow.node {
     type: "END",
     parentKeys: [],
   };
-  return newNode;
+  return observable(newNode);
 }
 
 function getTaskNode(parentNode: Flow.node): Flow.node {
@@ -37,7 +37,7 @@ function getTaskNode(parentNode: Flow.node): Flow.node {
     type: "USERTASK",
     parentKeys,
   };
-  return newNode;
+  return observable(newNode);
 }
 
 function getConditionNode(parentNode: Flow.node): Flow.node {
@@ -51,7 +51,7 @@ function getConditionNode(parentNode: Flow.node): Flow.node {
     parentKeys,
   };
   newNode.children = [getBranchNode(newNode), getBranchNode(newNode)];
-  return newNode;
+  return observable(newNode);
 }
 
 function getBranchNode(parentNode: Flow.node): Flow.node {
@@ -62,7 +62,7 @@ function getBranchNode(parentNode: Flow.node): Flow.node {
     children: [],
     parentKeys: [...parentKeys, parentNode.id],
   };
-  return newNode;
+  return observable(newNode);
 }
 
 function isBranchRoot(node: Flow.node): boolean {
