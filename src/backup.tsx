@@ -24,7 +24,7 @@ function App() {
     },
     [] // note empty dependencies
   );
-  // console.log(flowStore);
+  console.log(flowStore);
   // console.log(isObservableObject(flowStore.data));
 
   return (

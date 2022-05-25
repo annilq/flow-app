@@ -6,8 +6,9 @@ class FlowStore {
   data: Flow.node[] = [];
   constructor(data) {
     // Object.assign(this, utils);
-    // this.data = data?.map((item) => new FlowModel(item));
-    this.data = data
+    this.data = data?.map((item) => new FlowModel(item));
+
+    // this.data = data
     makeAutoObservable(this);
   }
   addBranch = (node) => {
@@ -22,15 +23,16 @@ class FlowStore {
 }
 
 class FlowModel {
-  children = [];
+  store = null;
+  children: any = [];
   id = "";
   type = "";
   title = "";
-  constructor(object) {
-    if (object.children) {
-      this.children = new FlowStore(object.children).data;
+  constructor(model) {
+    Object.assign(this, model);
+    if (model?.children?.length) {
+      this.store = new FlowStore(model?.children);
     }
-    Object.assign(this, object);
     makeAutoObservable(this);
   }
 }
