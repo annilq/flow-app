@@ -16,10 +16,4 @@ declare namespace Flow {
     children?: node[];
     parentKeys?: string[];
   };
-
-  type edge = {
-    id: string;
-    source: string;
-    target: string;
-  };
 }
