@@ -19,21 +19,23 @@
 .condition{
     display: flex;
     flex-direction: column;
-
 }
 .branch-nodes{
     display: flex;
     flex-direction: row;
-    gap: 20px;
-    border-top: 1px solid var(--borderColor);
-    border-bottom: 1px solid var(--borderColor);
-    /* overflow: auto; */
+    /* gap: 20px; */
+    /* border-top: 1px solid var(--borderColor);
+    border-bottom: 1px solid var(--borderColor); */
+    overflow: overlay;
 }
 .branch-nodes .branch{
     display: flex;
     flex-direction: column;
     flex:1;
     position: relative;
+    border-top: 1px solid var(--borderColor);
+    border-bottom: 1px solid var(--borderColor);
+    padding: 0 10px;
 }
 .branch-nodes .branch:first-child::before{
    content: "";

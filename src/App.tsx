@@ -1,39 +1,72 @@
 import { useState } from "react";
-import { Button, Modal } from "antd";
-import Flow from "./flow";
-import initdata from "./flow/flowdata";
-import { addBranch,removeNode, addNodeAfter } from "./flow/util";
+import { useImmerReducer } from "use-immer";
 
+import { Button, Modal } from "antd";
+
+import Flow from "./flow";
+import initialState from "./flow/flowdata";
+import { addBranch, removeNode, addNodeAfter } from "./flow/util";
+
+type actionType = "ADD" | "DELETE" | "UPDATE";
+type actionAddNode = { nodeType: Flow.NodeType; node: Flow.node };
+
+function reducer(
+  draft,
+  action: {
+    type: actionType;
+    payload: actionAddNode | Flow.node;
+  }
+) {
+  switch (action.type) {
+    case "ADD":
+      const { nodeType, node } = action.payload as actionAddNode;
+      switch (nodeType) {
+        case "BRANCH":
+          addBranch(node, draft);
+          break;
+        case "CONDITION":
+        case "USERTASK":
+          addNodeAfter(nodeType, node, draft);
+          break;
+        default:
+          break;
+      }
+      break;
+    case "UPDATE":
+      break;
+    case "DELETE":
+      removeNode(action.payload as Flow.node, draft);
+      break;
+  }
+}
 function App() {
-  const [data, setData] = useState(initdata);
   const [visible, setVisible] = useState(false);
   const [node, setNode] = useState<Flow.node>();
+  const [state, dispatch] = useImmerReducer(reducer, initialState);
+
   return (
     <div className="App">
       <Flow
-        nodes={data}
+        nodes={state}
         events={{
           onAddBranch: (node) => {
-            // console.log("addBranch", node);
-            setNode(node);
-            addBranch(node,data);
-            // setVisible(true);
+            dispatch({ type: "ADD", payload: { nodeType: "BRANCH", node } });
           },
+
           onAddNode: (node) => {
-            // console.log("addNode", node);
             setNode(node);
             setVisible(true);
           },
+
           onClickNode: (node) => {
             // console.log("onClickNode", node);
             // setNode(node);
             // setVisible(true);
+            // dispatch({ type: "addBranch" });
           },
           onRemoveNode: (node) => {
-            console.log("onRemoveNode", node);
-            removeNode(node,data)
-            // setNode(node);
-            // setVisible(true);
+            console.log("removeNode", node);
+            dispatch({ type: "DELETE", payload: node });
           },
         }}
       />
@@ -41,8 +74,7 @@ function App() {
         <Button
           type="primary"
           onClick={() => {
-            const newdata = addNodeAfter("USERTASK", node, data);
-            console.log(newdata);
+            dispatch({ type: "ADD", payload: { nodeType: "USERTASK", node } });
           }}
         >
           任务
@@ -50,8 +82,7 @@ function App() {
         <Button
           type="primary"
           onClick={() => {
-            const newdata = addNodeAfter("CONDITION", node, data);
-            console.log(newdata);
+            dispatch({ type: "ADD", payload: { nodeType: "CONDITION", node } });
           }}
         >
           分支

@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './backup';
+import App from './App';
 import reportWebVitals from './reportWebVitals';
 import "antd/dist/antd.min.css";
 const root = ReactDOM.createRoot(
