@@ -1,5 +1,3 @@
-import { observer, Observer } from "mobx-react-lite";
-import { isObservableObject } from "mobx";
 import Start from "./start";
 import End from "./end";
 import Condition from "./condition";
@@ -13,7 +11,7 @@ function FLowNodeRender({
   node: Flow.node;
   children?: any;
 }) {
-//   console.log(node.id, isObservableObject(node));
+  //   console.log(node.id, isObservableObject(node));
 
   let FlowNode = null;
   switch (node.type) {
@@ -52,7 +50,7 @@ function FLowNodeRender({
       break;
   }
 
-  return <Observer>{() => <>{FlowNode}</>}</Observer>;
+  return <>{FlowNode}</>;
 }
 
 export default FLowNodeRender;

@@ -1,54 +1,73 @@
-import { useState, useEffect } from "react";
-import { isObservableObject, reaction, toJS } from "mobx";
+import { useState } from "react";
+import { useImmerReducer } from "use-immer";
 
 import { Button, Modal } from "antd";
+
 import Flow from "./flow";
-import initdata from "./flow/flowdata";
-import FlowStore from "./flow/flowStore";
+import initialState from "./flow/flowdata";
+import { addBranch, removeNode, addNodeAfter } from "./flow/util";
 
-// const flowStore = new FlowStore(initdata);
+type actionType = "ADD" | "DELETE" | "UPDATE";
+type actionAddNode = { nodeType: Flow.NodeType; node: Flow.node };
 
+function reducer(
+  draft,
+  action: {
+    type: actionType;
+    payload: actionAddNode | Flow.node;
+  }
+) {
+  switch (action.type) {
+    case "ADD":
+      const { nodeType, node } = action.payload as actionAddNode;
+      switch (nodeType) {
+        case "BRANCH":
+          addBranch(node, draft);
+          break;
+        case "CONDITION":
+        case "USERTASK":
+          addNodeAfter(nodeType, node, draft);
+          break;
+        default:
+          break;
+      }
+      break;
+    case "UPDATE":
+      break;
+    case "DELETE":
+      removeNode(action.payload as Flow.node, draft);
+      break;
+  }
+}
 function App() {
   const [visible, setVisible] = useState(false);
   const [node, setNode] = useState<Flow.node>();
-  const [flowStore] = useState<any>(() => new FlowStore(initdata));
-
-  useEffect(
-    () => {
-      reaction(
-        () => toJS(flowStore.data),
-        (newVal) => {
-          console.log(newVal);
-        }
-      );
-    },
-    [] // note empty dependencies
-  );
-  console.log(flowStore);
-  // console.log(isObservableObject(flowStore.data));
+  const [state, dispatch] = useImmerReducer(reducer, initialState);
+  console.log(state);
 
   return (
     <div className="App">
       <Flow
-        // nodes={ flowStore.data}
-        flowStore={flowStore}
-        nodes={toJS(flowStore.data)}
+        nodes={state}
         events={{
           onAddBranch: (node) => {
-            flowStore.addBranch(node);
+            dispatch({ type: "ADD", payload: { nodeType: "BRANCH", node } });
           },
+
           onAddNode: (node) => {
             setNode(node);
             setVisible(true);
           },
+
           onClickNode: (node) => {
             // console.log("onClickNode", node);
             // setNode(node);
             // setVisible(true);
+            // dispatch({ type: "addBranch" });
           },
           onRemoveNode: (node) => {
-            console.log("onRemoveNode", node);
-            flowStore.removeNode(node);
+            console.log("removeNode", node);
+            dispatch({ type: "DELETE", payload: node });
           },
         }}
       />
@@ -56,7 +75,7 @@ function App() {
         <Button
           type="primary"
           onClick={() => {
-            flowStore.addNodeAfter("USERTASK", node);
+            dispatch({ type: "ADD", payload: { nodeType: "USERTASK", node } });
           }}
         >
           任务
@@ -64,7 +83,7 @@ function App() {
         <Button
           type="primary"
           onClick={() => {
-            flowStore.addNodeAfter("CONDITION", node);
+            dispatch({ type: "ADD", payload: { nodeType: "CONDITION", node } });
           }}
         >
           分支

@@ -1,5 +1,3 @@
-import { isObservableObject } from "mobx";
-import { Observer, observer } from "mobx-react-lite";
 import { useContext } from "react";
 
 import FlowContext from "./flowContext";
@@ -42,8 +40,5 @@ function Flow(flowProps: FlowProps) {
     </FlowContext.Provider>
   );
 }
-const FlowWrapper = observer(({ flowStore, events }: any) => (
-  <Flow nodes={flowStore.data} events={events}/>
-));
 
-export default FlowWrapper;
+export default Flow;

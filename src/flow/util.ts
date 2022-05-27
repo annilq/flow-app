@@ -1,7 +1,7 @@
 /*
     start -> task?->condition?(children:[])-> task[]? -> end
 */
-import { observable } from "mobx";
+
 export function getuid() {
   const tempUrl = URL.createObjectURL(new Blob());
   const uuid = tempUrl.toString(); // blob:https://xxx.com/b250d159-e1b6-4a87-9002-885d90033be3
@@ -15,7 +15,7 @@ function getStartNode(): Flow.node {
     type: "START",
     parentKeys: [],
   };
-  return observable(newNode);
+  return newNode;
 }
 
 function getEndNode(): Flow.node {
@@ -24,7 +24,7 @@ function getEndNode(): Flow.node {
     type: "END",
     parentKeys: [],
   };
-  return observable(newNode);
+  return newNode;
 }
 
 function getTaskNode(parentNode: Flow.node): Flow.node {
@@ -37,7 +37,7 @@ function getTaskNode(parentNode: Flow.node): Flow.node {
     type: "USERTASK",
     parentKeys,
   };
-  return observable(newNode);
+  return newNode;
 }
 
 function getConditionNode(parentNode: Flow.node): Flow.node {
@@ -51,7 +51,7 @@ function getConditionNode(parentNode: Flow.node): Flow.node {
     parentKeys,
   };
   newNode.children = [getBranchNode(newNode), getBranchNode(newNode)];
-  return observable(newNode);
+  return newNode;
 }
 
 function getBranchNode(parentNode: Flow.node): Flow.node {
@@ -62,7 +62,7 @@ function getBranchNode(parentNode: Flow.node): Flow.node {
     children: [],
     parentKeys: [...parentKeys, parentNode.id],
   };
-  return observable(newNode);
+  return newNode;
 }
 
 function isBranchRoot(node: Flow.node): boolean {
@@ -70,9 +70,7 @@ function isBranchRoot(node: Flow.node): boolean {
 }
 
 function addBranchRoot(node: Flow.node, parent: Flow.node) {
-  // parent.children.unshift(node);
-  // parent.children = [node, ...parent.children];
-  parent.children.splice(0, 0, node);
+  parent.children.unshift(node);
 }
 
 function findParentNode(parentKeys: string[], nodes: Flow.node[]): Flow.node {
@@ -91,19 +89,43 @@ function findParentNode(parentKeys: string[], nodes: Flow.node[]): Flow.node {
   iterNodes();
   return root;
 }
+function findNode(node: Flow.node, nodes: Flow.node[]): Flow.node {
+  const tempkeys = [...(node.parentKeys || [])];
+
+  let tempNode: any = nodes;
+  let root = null;
+  function iterNodes() {
+    let parentKey = tempkeys.shift();
+    while (parentKey && tempNode) {
+      root = tempNode?.find((item) => item.id === parentKey);
+      parentKey = tempkeys.shift();
+      tempNode = root?.children;
+    }
+  }
+  iterNodes();
+  return tempNode.find((item) => item.id === node.id);
+}
+
 export function initFlowChart() {
   return [getStartNode(), getStartNode()];
 }
 
+export function addBranch(node: Flow.node, nodes) {
+  const newNode = getBranchNode(node);
+  const current = findNode(node, nodes);
+
+  // 新增的节点插入到最后面
+  current.children.push(newNode);
+}
 export function addNodeAfter(
   nodeType: Flow.NodeType,
   node: Flow.node,
   nodes: Flow.node[]
-): Flow.node[] {
+) {
   let newNode = null;
   let parent = findParentNode(node.parentKeys, nodes);
   if (node.type === "BRANCH") {
-    parent = node;
+    parent = findNode(node, nodes);
   }
 
   switch (nodeType) {
@@ -118,7 +140,7 @@ export function addNodeAfter(
   }
   // 如果点击的是分支节点则直接追加到分支第一个
   if (isBranchRoot(node)) {
-    addBranchRoot(newNode, node);
+    addBranchRoot(newNode, parent);
   } else {
     // 存在父节点
     if (parent) {
@@ -127,14 +149,6 @@ export function addNodeAfter(
       insertNodeAfter(newNode, node, nodes);
     }
   }
-  return [...nodes];
-}
-
-export function addBranch(node: Flow.node, nodes) {
-  const newNode = getBranchNode(node);
-
-  // 新增的节点插入到最后面
-  node.children.push(newNode);
 }
 
 function insertNodeAfter(
