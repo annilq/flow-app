@@ -12,7 +12,6 @@ declare namespace Flow {
     id: string;
     type: NodeType;
     title?: string;
-    next?: node;
     children?: node[];
     parentKeys?: string[];
   };

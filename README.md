@@ -17,7 +17,6 @@ declare namespace Flow {
     id: string;
     type: NodeType;
     title?: string;
-    next?: node;
     children?: node[];
     parentKeys?: string[];
   };
@@ -45,6 +44,7 @@ declare namespace Flow {
 <UserTask data={nodes[2]} />
 <End data={nodes[3]} />
 ```
+![demo 图]("https://github.com/annilq/flow-app/blob/master/public/demo.png")
 
 ### 注意事项
 1. Condition组件下面只能接 Branch 组件
